@@ -39,6 +39,7 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.15",
+        "jangregor/phpstan-prophecy": "^0.4.1",
         "phpstan/phpstan": "^0.11.8",
         "phpstan/phpstan-phpunit": "^0.11.2",
         "phpunit/phpunit": "^8.2",
@@ -66,8 +67,8 @@
             "php-cs-fixer fix -v --ansi"
         ],
         "code-analyse": [
-            "phpstan analyse -l 1 src --memory-limit=512M --ansi",
-            "phpstan analyse -l 1 tests -c phpstan.tests.neon --memory-limit=512M --ansi"
+            "phpstan analyse -l 4 src --memory-limit=512M --ansi",
+            "phpstan analyse -l 4 tests -c phpstan.tests.neon --memory-limit=512M --ansi"
         ],
         "test-unit": [
             "phpunit --colors=always"
