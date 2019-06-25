@@ -24,7 +24,9 @@ class GuzzleCollector implements DataCollectorInterface, ConfigurableInterface, 
     private $requests = [];
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
+     *
+     * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function register(Container $container): void
     {
@@ -50,7 +52,7 @@ class GuzzleCollector implements DataCollectorInterface, ConfigurableInterface, 
             } else {
                 $oldInstance = $container->make($abstract);
 
-                $container->{$type}($oldAbstract, function () use (&$oldInstance): object {
+                $container->{$type}($oldAbstract, static function () use (&$oldInstance): object {
                     return $oldInstance;
                 });
             }
