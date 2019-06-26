@@ -17,12 +17,12 @@ use Psr\Http\Message\RequestInterface;
 class Guzzle6ClientDecoratorTest extends TestCase
 {
     /**
-     * @var \GuzzleHttp\ClientInterface&\Prophecy\Prophecy\ObjectProphecy
+     * @var \GuzzleHttp\ClientInterface|\Prophecy\Prophecy\ObjectProphecy
      */
     private $clientProphecy;
 
     /**
-     * @var \Miquido\RequestDataCollector\Collectors\GuzzleCollector\GuzzleCollector&\Prophecy\Prophecy\ObjectProphecy
+     * @var \Miquido\RequestDataCollector\Collectors\GuzzleCollector\GuzzleCollector|\Prophecy\Prophecy\ObjectProphecy
      */
     private $guzzleCollectorProphecy;
 
