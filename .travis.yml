@@ -26,6 +26,7 @@ env:
     - DEFAULT_COMPOSER_FLAGS="--no-interaction --no-ansi --no-progress --no-suggest --no-scripts --optimize-autoloader --classmap-authoritative"
 
 install:
+  - composer global require "hirak/prestissimo:^0.3" --prefer-dist --no-progress --no-suggest --classmap-authoritative --ansi
   - if [[ "$DEPENDENCIES" = 'highest' ]]; then composer update $DEFAULT_COMPOSER_FLAGS; fi
   - if [[ "$DEPENDENCIES" = 'lowest' ]]; then composer update $DEFAULT_COMPOSER_FLAGS --prefer-lowest; fi
 
