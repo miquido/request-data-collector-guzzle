@@ -41,10 +41,13 @@ class Guzzle6ClientDecoratorTest extends TestCase
         $this->guzzleCollectorProphecy = $this->prophesize(GuzzleCollector::class);
 
         /**
-         * @var \GuzzleHttp\ClientInterface                                              $clientMock
-         * @var \Miquido\RequestDataCollector\Collectors\GuzzleCollector\GuzzleCollector $guzzleCollectorMock
+         * @var \GuzzleHttp\ClientInterface $clientMock
          */
         $clientMock = $this->clientProphecy->reveal();
+
+        /**
+         * @var \Miquido\RequestDataCollector\Collectors\GuzzleCollector\GuzzleCollector $guzzleCollectorMock
+         */
         $guzzleCollectorMock = $this->guzzleCollectorProphecy->reveal();
 
         $this->guzzle6ClientDecorator = new Guzzle6ClientDecorator($clientMock, $guzzleCollectorMock);
