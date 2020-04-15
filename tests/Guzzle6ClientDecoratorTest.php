@@ -32,9 +32,6 @@ class Guzzle6ClientDecoratorTest extends TestCase
      */
     private $guzzle6ClientDecorator;
 
-    /**
-     * @inheritdoc
-     */
     protected function setUp(): void
     {
         $this->clientProphecy = $this->prophesize(ClientInterface::class);
@@ -121,9 +118,6 @@ class Guzzle6ClientDecoratorTest extends TestCase
         $this->guzzle6ClientDecorator->getConfig($option);
     }
 
-    /**
-     * @return \Psr\Http\Message\RequestInterface
-     */
     private function prepareRequestDummy(): RequestInterface
     {
         $requestDummy = $this->prophesize(RequestInterface::class)->reveal();
@@ -134,9 +128,6 @@ class Guzzle6ClientDecoratorTest extends TestCase
         return $requestDummy;
     }
 
-    /**
-     * @return \Prophecy\Argument\Token\CallbackToken
-     */
     private function prepareTimesArgumentAssertion(): CallbackToken
     {
         return Argument::that(function ($value) {

@@ -21,9 +21,6 @@ class GuzzleCollectorTest extends TestCase
      */
     private $guzzleCollector;
 
-    /**
-     * @inheritdoc
-     */
     protected function setUp(): void
     {
         $this->guzzleCollector = new GuzzleCollector();
@@ -306,8 +303,6 @@ class GuzzleCollectorTest extends TestCase
 
     /**
      * @param \Illuminate\Contracts\Container\Container&\Prophecy\Prophecy\ObjectProphecy $containerProphecy
-     * @param string                                                                      $abstract
-     * @param object                                                                      $object
      */
     private function assertAbstractWasDecorated($containerProphecy, string $abstract, object $object): void
     {
@@ -332,8 +327,6 @@ class GuzzleCollectorTest extends TestCase
 
     /**
      * @param \Illuminate\Contracts\Container\Container&\Prophecy\Prophecy\ObjectProphecy $containerProphecy
-     * @param string                                                                      $abstract
-     * @param object                                                                      $object
      */
     private function assertAbstractWasRewritten($containerProphecy, string $abstract, object $object): void
     {

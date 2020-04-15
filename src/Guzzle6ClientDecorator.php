@@ -19,10 +19,6 @@ class Guzzle6ClientDecorator extends Client implements ClientInterface
      */
     private $guzzleCollector;
 
-    /**
-     * @param \GuzzleHttp\ClientInterface                                              $client
-     * @param \Miquido\RequestDataCollector\Collectors\GuzzleCollector\GuzzleCollector $guzzleCollector
-     */
     public function __construct(ClientInterface $client, GuzzleCollector $guzzleCollector)
     {
         parent::__construct();
@@ -32,7 +28,9 @@ class Guzzle6ClientDecorator extends Client implements ClientInterface
     }
 
     /**
-     * @inheritdoc
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     *
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function send(RequestInterface $request, array $options = [])
     {
@@ -49,7 +47,7 @@ class Guzzle6ClientDecorator extends Client implements ClientInterface
     }
 
     /**
-     * @inheritdoc
+     * @return \GuzzleHttp\Promise\PromiseInterface
      */
     public function sendAsync(RequestInterface $request, array $options = [])
     {
@@ -66,7 +64,12 @@ class Guzzle6ClientDecorator extends Client implements ClientInterface
     }
 
     /**
-     * @inheritdoc
+     * @param string                                $method HTTP method.
+     * @param \Psr\Http\Message\UriInterface|string $uri    URI object or string.
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     *
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function request($method, $uri = '', array $options = [])
     {
@@ -83,7 +86,10 @@ class Guzzle6ClientDecorator extends Client implements ClientInterface
     }
 
     /**
-     * @inheritdoc
+     * @param string                                $method HTTP method
+     * @param \Psr\Http\Message\UriInterface|string $uri    URI object or string.
+     *
+     * @return \GuzzleHttp\Promise\PromiseInterface
      */
     public function requestAsync($method, $uri = '', array $options = [])
     {
@@ -99,9 +105,6 @@ class Guzzle6ClientDecorator extends Client implements ClientInterface
         return $promise;
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getConfig($option = null)
     {
         return $this->client->getConfig($option);
