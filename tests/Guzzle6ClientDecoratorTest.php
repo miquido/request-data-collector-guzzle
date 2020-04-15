@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Tests\Collectors\GuzzleCollector;
+namespace Miquido\RequestDataCollector\Collectors\GuzzleCollector\Tests;
 
 use GuzzleHttp\ClientInterface;
 use Miquido\RequestDataCollector\Collectors\GuzzleCollector\Guzzle6ClientDecorator;

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Tests\Collectors\GuzzleCollector;
+namespace Miquido\RequestDataCollector\Collectors\GuzzleCollector\Tests;
 
 use Illuminate\Contracts\Container\Container;
 use Miquido\RequestDataCollector\Collectors\GuzzleCollector\GuzzleCollector;

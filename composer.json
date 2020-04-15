@@ -53,7 +53,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "Miquido\\RequestDataCollector\\Collectors\\GuzzleCollector\\Tests\\": "tests/"
         }
     },
     "scripts": {
