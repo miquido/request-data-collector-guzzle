@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Tests\Collectors\GuzzleCollector;
+namespace Miquido\RequestDataCollector\Collectors\GuzzleCollector\Tests;
 
 use Illuminate\Contracts\Container\Container;
 use Miquido\RequestDataCollector\Collectors\GuzzleCollector\GuzzleCollector;
@@ -11,6 +11,7 @@ use Psr\Http\Message\RequestInterface;
 use stdClass;
 
 /**
+ * @covers \Miquido\RequestDataCollector\Collectors\GuzzleCollector\GuzzleCollector
  * @coversDefaultClass \Miquido\RequestDataCollector\Collectors\GuzzleCollector\GuzzleCollector
  */
 class GuzzleCollectorTest extends TestCase
@@ -184,8 +185,8 @@ class GuzzleCollectorTest extends TestCase
     }
 
     /**
-     * @covers \Miquido\RequestDataCollector\Collectors\GuzzleCollector\GuzzleCollector::addRequest
-     * @covers \Miquido\RequestDataCollector\Collectors\GuzzleCollector\GuzzleCollector::collect
+     * @covers ::addRequest
+     * @covers ::collect
      */
     public function testAddRequest(): void
     {
@@ -244,8 +245,8 @@ class GuzzleCollectorTest extends TestCase
     }
 
     /**
-     * @covers \Miquido\RequestDataCollector\Collectors\GuzzleCollector\GuzzleCollector::addRawRequest
-     * @covers \Miquido\RequestDataCollector\Collectors\GuzzleCollector\GuzzleCollector::collect
+     * @covers ::addRawRequest
+     * @covers ::collect
      */
     public function testAddRawRequest(): void
     {

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Tests\Collectors\GuzzleCollector;
+namespace Miquido\RequestDataCollector\Collectors\GuzzleCollector\Tests;
 
 use GuzzleHttp\ClientInterface;
 use Miquido\RequestDataCollector\Collectors\GuzzleCollector\Guzzle6ClientDecorator;
@@ -12,6 +12,7 @@ use Prophecy\Argument\Token\CallbackToken;
 use Psr\Http\Message\RequestInterface;
 
 /**
+ * @covers \Miquido\RequestDataCollector\Collectors\GuzzleCollector\Guzzle6ClientDecorator
  * @coversDefaultClass \Miquido\RequestDataCollector\Collectors\GuzzleCollector\Guzzle6ClientDecorator
  */
 class Guzzle6ClientDecoratorTest extends TestCase
