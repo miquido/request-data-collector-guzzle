@@ -24,8 +24,6 @@ class GuzzleCollector implements DataCollectorInterface, ConfigurableInterface, 
     private $requests = [];
 
     /**
-     * {@inheritdoc}
-     *
      * @throws \Illuminate\Contracts\Container\BindingResolutionException
      */
     public function register(Container $container): void
@@ -73,20 +71,11 @@ class GuzzleCollector implements DataCollectorInterface, ConfigurableInterface, 
         }
     }
 
-    /**
-     * @inheritdoc
-     */
     public function collect(): array
     {
         return $this->requests;
     }
 
-    /**
-     * @param string                             $via
-     * @param \Psr\Http\Message\RequestInterface $request
-     * @param array                              $options
-     * @param array                              $times
-     */
     public function addRequest(string $via, RequestInterface $request, array $options, array $times): void
     {
         $this->requests[] = [
@@ -100,11 +89,7 @@ class GuzzleCollector implements DataCollectorInterface, ConfigurableInterface, 
     }
 
     /**
-     * @param string                                $via
-     * @param string                                $method
      * @param \Psr\Http\Message\UriInterface|string $uri
-     * @param array                                 $options
-     * @param array                                 $times
      */
     public function addRawRequest(string $via, string $method, $uri, array $options, array $times): void
     {

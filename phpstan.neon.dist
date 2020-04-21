@@ -1,4 +1,8 @@
 includes:
 parameters:
+    # Remove after dropping old Guzzle support
+    reportUnmatchedIgnoredErrors: false
+
     ignoreErrors:
-    	# False positives
+        # False positives
+        - '#PHPDoc tag @throws with type GuzzleHttp\\Exception\\GuzzleException is not subtype of Throwable#'
