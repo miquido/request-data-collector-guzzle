@@ -32,7 +32,7 @@
     "require": {
         "php": ">=7.2",
         "guzzlehttp/guzzle": "^6.0",
-        "miquido/request-data-collector": "^1.0 || ^2.0"
+        "miquido/request-data-collector": "^2.2"
     },
     "suggest": {
         "miquido/request-data-collector-elasticsearch": "Allows collecting Elasticsearch requests"
