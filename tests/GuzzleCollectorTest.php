@@ -199,7 +199,7 @@ class GuzzleCollectorTest extends TestCase
         $options = [];
 
         /**
-         * @var \Psr\Http\Message\RequestInterface&\Prophecy\Prophecy\ObjectProphecy $requestProphecy
+         * @var \Prophecy\Prophecy\ObjectProphecy|\Psr\Http\Message\RequestInterface $requestProphecy
          */
         $requestProphecy = $this->prophesize(RequestInterface::class);
 
@@ -273,13 +273,53 @@ class GuzzleCollectorTest extends TestCase
         ], $this->guzzleCollector->collect());
     }
 
+    public function testGetSeparateLogEntries(): void
+    {
+        $requests = [
+            [
+                'via'     => 'method_name',
+                'method'  => 'METHOD',
+                'uri'     => 'uri://example.com',
+                'headers' => [
+                    'Header' => [
+                        'value1',
+                        'value2',
+                    ],
+                ],
+                'options' => [],
+
+                'times' => [
+                    'started_at'  => 123.45,
+                    'finished_at' => 678.90,
+                ],
+            ],
+            [
+                'via'     => 'method_name',
+                'method'  => 'METHOD',
+                'uri'     => 'uri://example.com',
+                'headers' => [],
+                'options' => [],
+
+                'times' => [
+                    'started_at'  => 234.56,
+                    'finished_at' => 789.01,
+                ],
+            ],
+        ];
+
+        foreach ($this->guzzleCollector->getSeparateLogEntries($requests) as $index => $logEntry) {
+            self::assertSame((string) $index, $index);
+            self::assertSame($requests[$index], $logEntry);
+        }
+    }
+
     /**
-     * @return \Illuminate\Contracts\Container\Container&\Prophecy\Prophecy\ObjectProphecy
+     * @return \Illuminate\Contracts\Container\Container|\Prophecy\Prophecy\ObjectProphecy
      */
     private function prepareContainerProphecy(): object
     {
         /**
-         * @var \Illuminate\Contracts\Container\Container&\Prophecy\Prophecy\ObjectProphecy $containerProphecy
+         * @var \Illuminate\Contracts\Container\Container|\Prophecy\Prophecy\ObjectProphecy $containerProphecy
          */
         $containerProphecy = $this->prophesize(Container::class);
 
@@ -302,7 +342,7 @@ class GuzzleCollectorTest extends TestCase
     }
 
     /**
-     * @param \Illuminate\Contracts\Container\Container&\Prophecy\Prophecy\ObjectProphecy $containerProphecy
+     * @param \Illuminate\Contracts\Container\Container|\Prophecy\Prophecy\ObjectProphecy $containerProphecy
      */
     private function assertAbstractWasDecorated($containerProphecy, string $abstract, object $object): void
     {
@@ -313,7 +353,7 @@ class GuzzleCollectorTest extends TestCase
             ->will(function (array $args, $containerProphecy) use ($self, $object): object {
                 /**
                  * @var callable                                                                    $concrete
-                 * @var \Illuminate\Contracts\Container\Container&\Prophecy\Prophecy\ObjectProphecy $containerProphecy
+                 * @var \Illuminate\Contracts\Container\Container|\Prophecy\Prophecy\ObjectProphecy $containerProphecy
                  */
                 [, $concrete] = $args;
 
@@ -326,7 +366,7 @@ class GuzzleCollectorTest extends TestCase
     }
 
     /**
-     * @param \Illuminate\Contracts\Container\Container&\Prophecy\Prophecy\ObjectProphecy $containerProphecy
+     * @param \Illuminate\Contracts\Container\Container|\Prophecy\Prophecy\ObjectProphecy $containerProphecy
      */
     private function assertAbstractWasRewritten($containerProphecy, string $abstract, object $object): void
     {

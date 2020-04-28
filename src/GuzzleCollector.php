@@ -7,10 +7,11 @@ use Illuminate\Contracts\Container\Container;
 use Miquido\RequestDataCollector\Collectors\Contracts\ConfigurableInterface;
 use Miquido\RequestDataCollector\Collectors\Contracts\DataCollectorInterface;
 use Miquido\RequestDataCollector\Collectors\Contracts\ModifiesContainerInterface;
+use Miquido\RequestDataCollector\Collectors\Contracts\SupportsSeparateLogEntriesInterface;
 use Miquido\RequestDataCollector\Traits\ConfigurableTrait;
 use Psr\Http\Message\RequestInterface;
 
-class GuzzleCollector implements DataCollectorInterface, ConfigurableInterface, ModifiesContainerInterface
+class GuzzleCollector implements DataCollectorInterface, ConfigurableInterface, ModifiesContainerInterface, SupportsSeparateLogEntriesInterface
 {
     use ConfigurableTrait;
 
@@ -74,6 +75,13 @@ class GuzzleCollector implements DataCollectorInterface, ConfigurableInterface, 
     public function collect(): array
     {
         return $this->requests;
+    }
+
+    public function getSeparateLogEntries(array $collected): iterable
+    {
+        foreach ($collected as $index => $request) {
+            yield (string) $index => $request;
+        }
     }
 
     public function addRequest(string $via, RequestInterface $request, array $options, array $times): void
