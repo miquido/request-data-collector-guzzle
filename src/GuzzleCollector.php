@@ -20,7 +20,7 @@ class GuzzleCollector implements DataCollectorInterface, ConfigurableInterface, 
     public const TYPE_SINGLETON = 'singleton';
 
     /**
-     * The name (registered in the container) of abstract that performed request.
+     * The name of abstract (registered in the container) that performed request.
      */
     public const INFO_BY = 'by';
 
@@ -114,10 +114,10 @@ class GuzzleCollector implements DataCollectorInterface, ConfigurableInterface, 
         }
     }
 
-    public function addRequest(string $by, string $via, RequestInterface $request, array $options, array $times): void
+    public function addRequest(string $abstract, string $via, RequestInterface $request, array $options, array $times): void
     {
-        $this->registerRequest($by, [
-            self::INFO_BY      => $by,
+        $this->registerRequest($abstract, [
+            self::INFO_BY      => $abstract,
             self::INFO_VIA     => $via,
             self::INFO_METHOD  => $request->getMethod(),
             self::INFO_URI     => (string) $request->getUri(),
@@ -130,10 +130,10 @@ class GuzzleCollector implements DataCollectorInterface, ConfigurableInterface, 
     /**
      * @param \Psr\Http\Message\UriInterface|string $uri
      */
-    public function addRawRequest(string $by, string $via, string $method, $uri, array $options, array $times): void
+    public function addRawRequest(string $abstract, string $via, string $method, $uri, array $options, array $times): void
     {
-        $this->registerRequest($by, [
-            self::INFO_BY      => $by,
+        $this->registerRequest($abstract, [
+            self::INFO_BY      => $abstract,
             self::INFO_VIA     => $via,
             self::INFO_METHOD  => $method,
             self::INFO_URI     => (string) $uri,
