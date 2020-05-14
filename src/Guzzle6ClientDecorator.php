@@ -19,12 +19,18 @@ class Guzzle6ClientDecorator extends Client implements ClientInterface
      */
     private $guzzleCollector;
 
-    public function __construct(ClientInterface $client, GuzzleCollector $guzzleCollector)
+    /**
+     * @var string
+     */
+    private $abstract;
+
+    public function __construct(ClientInterface $client, GuzzleCollector $guzzleCollector, string $abstract)
     {
         parent::__construct();
 
         $this->client = $client;
         $this->guzzleCollector = $guzzleCollector;
+        $this->abstract = $abstract;
     }
 
     /**
@@ -38,7 +44,7 @@ class Guzzle6ClientDecorator extends Client implements ClientInterface
         $response = $this->client->send($request, $options);
         $TEnd = \microtime(true);
 
-        $this->guzzleCollector->addRequest('send', $request, $options, [
+        $this->guzzleCollector->addRequest($this->abstract, 'send', $request, $options, [
             'started_at'  => $TStart,
             'finished_at' => $TEnd,
         ]);
@@ -55,7 +61,7 @@ class Guzzle6ClientDecorator extends Client implements ClientInterface
         $promise = $this->client->sendAsync($request, $options);
         $TEnd = \microtime(true);
 
-        $this->guzzleCollector->addRequest('sendAsync', $request, $options, [
+        $this->guzzleCollector->addRequest($this->abstract, 'sendAsync', $request, $options, [
             'started_at'  => $TStart,
             'finished_at' => $TEnd,
         ]);
@@ -77,7 +83,7 @@ class Guzzle6ClientDecorator extends Client implements ClientInterface
         $response = $this->client->request($method, $uri, $options);
         $TEnd = \microtime(true);
 
-        $this->guzzleCollector->addRawRequest('request', $method, $uri, $options, [
+        $this->guzzleCollector->addRawRequest($this->abstract, 'request', $method, $uri, $options, [
             'started_at'  => $TStart,
             'finished_at' => $TEnd,
         ]);
@@ -97,7 +103,7 @@ class Guzzle6ClientDecorator extends Client implements ClientInterface
         $promise = $this->client->requestAsync($method, $uri, $options);
         $TEnd = \microtime(true);
 
-        $this->guzzleCollector->addRawRequest('requestAsync', $method, $uri, $options, [
+        $this->guzzleCollector->addRawRequest($this->abstract, 'requestAsync', $method, $uri, $options, [
             'started_at'  => $TStart,
             'finished_at' => $TEnd,
         ]);
