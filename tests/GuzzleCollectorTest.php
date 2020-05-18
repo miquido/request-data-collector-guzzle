@@ -799,12 +799,13 @@ class GuzzleCollectorTest extends TestCase
             ->shouldBeCalledOnce()
             ->will(function (array $args, $containerProphecy) use ($self, $object): object {
                 /**
+                 * @var string                                                                      $abstract
                  * @var callable                                                                    $concrete
                  * @var \Illuminate\Contracts\Container\Container|\Prophecy\Prophecy\ObjectProphecy $containerProphecy
                  */
-                [, $concrete] = $args;
+                [$abstract, $concrete] = $args;
 
-                $containerProphecy->make('decorator::class', ['client' => $object])
+                $containerProphecy->make('decorator::class', ['client' => $object, 'abstract' => $abstract])
                     ->shouldBeCalledOnce()
                     ->willReturn($self->prophesize(stdClass::class)->reveal());
 

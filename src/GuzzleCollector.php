@@ -94,9 +94,10 @@ class GuzzleCollector implements DataCollectorInterface, ConfigurableInterface, 
         }
 
         foreach ($abstractsMap as ['abstract' => $abstract, 'type' => $type, 'oldInstance' => $instance]) {
-            $container->{$type}($abstract, function () use ($container, $instance): object {
+            $container->{$type}($abstract, function () use ($container, $instance, &$abstract): object {
                 return $container->make($this->config['decorate']['with'], [
-                    'client' => $instance,
+                    'client'   => $instance,
+                    'abstract' => $abstract,
                 ]);
             });
         }
