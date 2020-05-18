@@ -20,6 +20,36 @@ class GuzzleCollector implements DataCollectorInterface, ConfigurableInterface, 
     public const TYPE_SINGLETON = 'singleton';
 
     /**
+     * The name of abstract (registered in the container) that performed request.
+     */
+    public const INFO_BY = 'by';
+
+    /**
+     * The Guzzle method that was used to send request (send, sendAsync, request or requestAsync).
+     */
+    public const INFO_VIA = 'via';
+
+    /**
+     * Request method.
+     */
+    public const INFO_METHOD = 'method';
+
+    /**
+     * Request target URI.
+     */
+    public const INFO_URI = 'uri';
+
+    /**
+     * Headers sent with request.
+     */
+    public const INFO_HEADERS = 'headers';
+
+    /**
+     * Options configured for request.
+     */
+    public const INFO_OPTIONS = 'options';
+
+    /**
      * @var array
      */
     private $requests = [];
@@ -84,30 +114,122 @@ class GuzzleCollector implements DataCollectorInterface, ConfigurableInterface, 
         }
     }
 
-    public function addRequest(string $via, RequestInterface $request, array $options, array $times): void
+    public function addRequest(string $abstract, string $via, RequestInterface $request, array $options, array $times): void
     {
-        $this->requests[] = [
-            'via'     => $via,
-            'method'  => $request->getMethod(),
-            'uri'     => (string) $request->getUri(),
-            'headers' => $request->getHeaders(),
-            'options' => $options,
-            'times'   => $times,
-        ];
+        $this->registerRequest($abstract, [
+            self::INFO_BY      => $abstract,
+            self::INFO_VIA     => $via,
+            self::INFO_METHOD  => $request->getMethod(),
+            self::INFO_URI     => (string) $request->getUri(),
+            self::INFO_HEADERS => $request->getHeaders(),
+            self::INFO_OPTIONS => $options,
+            'times'            => $times,
+        ]);
     }
 
     /**
      * @param \Psr\Http\Message\UriInterface|string $uri
      */
-    public function addRawRequest(string $via, string $method, $uri, array $options, array $times): void
+    public function addRawRequest(string $abstract, string $via, string $method, $uri, array $options, array $times): void
     {
-        $this->requests[] = [
-            'via'     => $via,
-            'method'  => $method,
-            'uri'     => (string) $uri,
-            'headers' => [],
-            'options' => $options,
-            'times'   => $times,
-        ];
+        $this->registerRequest($abstract, [
+            self::INFO_BY      => $abstract,
+            self::INFO_VIA     => $via,
+            self::INFO_METHOD  => $method,
+            self::INFO_URI     => (string) $uri,
+            self::INFO_HEADERS => [],
+            self::INFO_OPTIONS => $options,
+            'times'            => $times,
+        ]);
+    }
+
+    protected function registerRequest(string $abstract, array $data): void
+    {
+        if (!$this->shouldRequestInfoBeCollected($abstract, self::INFO_BY)) {
+            unset($data[self::INFO_BY]);
+        }
+
+        if (!$this->shouldRequestInfoBeCollected($abstract, self::INFO_VIA)) {
+            unset($data[self::INFO_VIA]);
+        }
+
+        if (!$this->shouldRequestInfoBeCollected($abstract, self::INFO_METHOD)) {
+            unset($data[self::INFO_METHOD]);
+        }
+
+        if (!$this->shouldRequestInfoBeCollected($abstract, self::INFO_URI)) {
+            unset($data[self::INFO_URI]);
+        }
+
+        if ($this->shouldRequestInfoBeCollected($abstract, self::INFO_HEADERS)) {
+            $data[self::INFO_HEADERS] = $this->filterHeaders($abstract, $data[self::INFO_HEADERS]);
+        } else {
+            unset($data[self::INFO_HEADERS]);
+        }
+
+        if (!$this->shouldRequestInfoBeCollected($abstract, self::INFO_OPTIONS)) {
+            unset($data[self::INFO_OPTIONS]);
+        }
+
+        $this->requests[] = $data;
+    }
+
+    private function shouldRequestInfoBeCollected(string $abstract, string $info): bool
+    {
+        if (!isset($this->config['decorate']['abstracts'][$abstract]['collect'])) {
+            return true;
+        }
+
+        return isset($this->config['decorate']['abstracts'][$abstract]['collect'][$info]) ||
+            \in_array($info, $this->config['decorate']['abstracts'][$abstract]['collect'], true);
+    }
+
+    /**
+     * @param array[] $headers
+     *
+     * @return array[]
+     */
+    private function filterHeaders(string $abstract, array $headers): array
+    {
+        static $cache = [];
+
+        if (!isset($this->config['decorate']['abstracts'][$abstract]['collect'][self::INFO_HEADERS])) {
+            return $headers;
+        }
+
+        if (!isset($cache[$abstract])) {
+            $cache[$abstract] = [
+                'includes' => null,
+                'excludes' => null,
+            ];
+
+            if (isset($this->config['decorate']['abstracts'][$abstract]['collect'][self::INFO_HEADERS]['includes'])) {
+                $cache[$abstract]['includes'] = \array_change_key_case(\array_flip($this->config['decorate']['abstracts'][$abstract]['collect'][self::INFO_HEADERS]['includes']), CASE_LOWER);
+            } elseif (isset($this->config['decorate']['abstracts'][$abstract]['collect'][self::INFO_HEADERS]['excludes'])) {
+                $cache[$abstract]['excludes'] = \array_change_key_case(\array_flip($this->config['decorate']['abstracts'][$abstract]['collect'][self::INFO_HEADERS]['excludes']), CASE_LOWER);
+            }
+        }
+
+        if (null !== $cache[$abstract]['includes']) {
+            foreach ($headers as $name => $data) {
+                if (!\array_key_exists(\strtolower($name), $cache[$abstract]['includes'])) {
+                    unset($headers[$name]);
+                }
+            }
+
+            return $headers;
+        }
+
+        if (null !== $cache[$abstract]['excludes']) {
+            foreach ($headers as $name => $data) {
+                if (\array_key_exists(\strtolower($name), $cache[$abstract]['excludes'])) {
+                    unset($headers[$name]);
+                }
+            }
+
+            return $headers;
+        }
+
+        return $headers;
     }
 }

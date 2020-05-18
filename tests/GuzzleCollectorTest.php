@@ -26,9 +26,21 @@ class GuzzleCollectorTest extends TestCase
         $this->guzzleCollector = new GuzzleCollector();
     }
 
+    public function infoDataProvider(): array
+    {
+        return [
+            GuzzleCollector::INFO_BY      => ['info' => GuzzleCollector::INFO_BY],
+            GuzzleCollector::INFO_VIA     => ['info' => GuzzleCollector::INFO_VIA],
+            GuzzleCollector::INFO_METHOD  => ['info' => GuzzleCollector::INFO_METHOD],
+            GuzzleCollector::INFO_URI     => ['info' => GuzzleCollector::INFO_URI],
+            GuzzleCollector::INFO_HEADERS => ['info' => GuzzleCollector::INFO_HEADERS],
+            GuzzleCollector::INFO_OPTIONS => ['info' => GuzzleCollector::INFO_OPTIONS],
+        ];
+    }
+
     public function testRequestForNonExistentAbstractWithCreatingDisallowed(): void
     {
-        $abstract = 'abstract_name';
+        $abstract = $this->getName();
 
         $this->guzzleCollector->setConfig([
             'decorate' => [
@@ -64,7 +76,7 @@ class GuzzleCollectorTest extends TestCase
 
     public function testRequestForNonExistentAbstractWithCreatingAllowed(): void
     {
-        $abstract = 'abstract_name';
+        $abstract = $this->getName();
 
         $this->guzzleCollector->setConfig([
             'decorate' => [
@@ -105,7 +117,7 @@ class GuzzleCollectorTest extends TestCase
 
     public function testRequestForExistingAbstractWithCreatingDisallowed(): void
     {
-        $abstract = 'abstract_name';
+        $abstract = $this->getName();
 
         $this->guzzleCollector->setConfig([
             'decorate' => [
@@ -144,7 +156,7 @@ class GuzzleCollectorTest extends TestCase
 
     public function testRequestForExistingAbstractWithCreatingAllowed(): void
     {
-        $abstract = 'abstract_name';
+        $abstract = $this->getName();
 
         $this->guzzleCollector->setConfig([
             'decorate' => [
@@ -184,9 +196,11 @@ class GuzzleCollectorTest extends TestCase
     /**
      * @covers ::addRequest
      * @covers ::collect
+     * @covers ::registerRequest
      */
     public function testAddRequest(): void
     {
+        $abstract = $this->getName();
         $via = 'method_name';
         $method = 'METHOD';
         $uri = 'uri://example.com';
@@ -220,13 +234,14 @@ class GuzzleCollectorTest extends TestCase
          */
         $requestMock = $requestProphecy->reveal();
 
-        $this->guzzleCollector->addRequest($via, $requestMock, $options, [
+        $this->guzzleCollector->addRequest($abstract, $via, $requestMock, $options, [
             'started_at'  => 123.45,
             'finished_at' => 678.90,
         ]);
 
         self::assertEquals([
             [
+                'by'      => $abstract,
                 'via'     => $via,
                 'method'  => $method,
                 'uri'     => $uri,
@@ -242,28 +257,460 @@ class GuzzleCollectorTest extends TestCase
     }
 
     /**
+     * @dataProvider infoDataProvider
+     *
+     * @covers ::addRequest
+     * @covers ::collect
+     * @covers ::registerRequest
+     */
+    public function testAddRequestWithInfoIncluded(string $info): void
+    {
+        $abstract = $this->getName();
+
+        $this->guzzleCollector->setConfig([
+            'decorate' => [
+                'abstracts' => [
+                    $abstract => [
+                        'collect' => [$info],
+                    ],
+                ],
+            ],
+        ]);
+
+        $via = 'method_name';
+        $method = 'METHOD';
+        $uri = 'uri://example.com';
+        $headers = [
+            'Header' => [
+                'value1',
+                'value2',
+            ],
+        ];
+        $options = [];
+
+        /**
+         * @var \Prophecy\Prophecy\ObjectProphecy|\Psr\Http\Message\RequestInterface $requestProphecy
+         */
+        $requestProphecy = $this->prophesize(RequestInterface::class);
+
+        $requestProphecy->getMethod()
+            ->shouldBeCalledOnce()
+            ->willReturn($method);
+
+        $requestProphecy->getUri()
+            ->shouldBeCalledOnce()
+            ->willReturn($uri);
+
+        $requestProphecy->getHeaders()
+            ->shouldBeCalledOnce()
+            ->willReturn($headers);
+
+        /**
+         * @var \Psr\Http\Message\RequestInterface $requestMock
+         */
+        $requestMock = $requestProphecy->reveal();
+
+        $this->guzzleCollector->addRequest($abstract, $via, $requestMock, $options, [
+            'started_at'  => 123.45,
+            'finished_at' => 678.90,
+        ]);
+
+        self::assertEquals([
+            \array_intersect_key([
+                'by'      => $abstract,
+                'via'     => $via,
+                'method'  => $method,
+                'uri'     => $uri,
+                'headers' => $headers,
+                'options' => $options,
+
+                'times' => [
+                    'started_at'  => 123.45,
+                    'finished_at' => 678.90,
+                ],
+            ], [$info => true, 'times' => true]),
+        ], $this->guzzleCollector->collect());
+    }
+
+    /**
      * @covers ::addRawRequest
      * @covers ::collect
+     * @covers ::registerRequest
      */
     public function testAddRawRequest(): void
     {
+        $abstract = $this->getName();
         $via = 'method_name';
         $method = 'METHOD';
         $uri = 'uri://example.com';
         $options = [];
 
-        $this->guzzleCollector->addRawRequest($via, $method, $uri, $options, [
+        $this->guzzleCollector->addRawRequest($abstract, $via, $method, $uri, $options, [
             'started_at'  => 123.45,
             'finished_at' => 678.90,
         ]);
 
         self::assertEquals([
             [
+                'by'      => $abstract,
                 'via'     => $via,
                 'method'  => $method,
                 'uri'     => $uri,
                 'headers' => [],
                 'options' => $options,
+
+                'times' => [
+                    'started_at'  => 123.45,
+                    'finished_at' => 678.90,
+                ],
+            ],
+        ], $this->guzzleCollector->collect());
+    }
+
+    /**
+     * @dataProvider infoDataProvider
+     *
+     * @covers ::addRawRequest
+     * @covers ::collect
+     * @covers ::registerRequest
+     */
+    public function testAddRawRequestWithInfoIncluded(string $info): void
+    {
+        $abstract = $this->getName();
+
+        $this->guzzleCollector->setConfig([
+            'decorate' => [
+                'abstracts' => [
+                    $abstract => [
+                        'collect' => [$info],
+                    ],
+                ],
+            ],
+        ]);
+
+        $via = 'method_name';
+        $method = 'METHOD';
+        $uri = 'uri://example.com';
+        $options = [];
+
+        $this->guzzleCollector->addRawRequest($abstract, $via, $method, $uri, $options, [
+            'started_at'  => 123.45,
+            'finished_at' => 678.90,
+        ]);
+
+        self::assertEquals([
+            \array_intersect_key([
+                'by'      => $abstract,
+                'via'     => $via,
+                'method'  => $method,
+                'uri'     => $uri,
+                'headers' => [],
+                'options' => $options,
+
+                'times' => [
+                    'started_at'  => 123.45,
+                    'finished_at' => 678.90,
+                ],
+            ], [$info => true, 'times' => true]),
+        ], $this->guzzleCollector->collect());
+    }
+
+    /**
+     * @covers ::addRequest
+     * @covers ::collect
+     * @covers ::registerRequest
+     * @covers ::filterHeaders
+     */
+    public function testAddRequestHeadersAreRestrictedToIncludedOnlyAndOverrideExclusions(): void
+    {
+        $abstract = $this->getName();
+
+        $header1Name = 'Header1';
+        $header2Name = 'HEADER-2';
+        $header3Name = 'header-3';
+        $header4Name = 'Header4';
+
+        $header1Value = [
+            'value1',
+            'value2',
+        ];
+        $header2Value = [
+            'value3',
+            'value4',
+        ];
+        $header3Value = [
+            'value5',
+            'value6',
+        ];
+        $header4Value = [
+            'value7',
+            'value8',
+        ];
+
+        $this->guzzleCollector->setConfig([
+            'decorate' => [
+                'abstracts' => [
+                    $abstract => [
+                        'collect' => [
+                            GuzzleCollector::INFO_HEADERS => [
+                                'excludes' => [
+                                    $header4Name,
+                                    $header1Name,
+                                ],
+
+                                'includes' => [
+                                    $header1Name,
+                                    $header2Name,
+                                    $header3Name,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $via = 'method_name';
+        $method = 'METHOD';
+        $uri = 'uri://example.com';
+        $headers = [
+            $header1Name => $header1Value,
+            $header2Name => $header2Value,
+            $header3Name => $header3Value,
+            $header4Name => $header4Value,
+        ];
+        $options = [];
+
+        /**
+         * @var \Prophecy\Prophecy\ObjectProphecy|\Psr\Http\Message\RequestInterface $requestProphecy
+         */
+        $requestProphecy = $this->prophesize(RequestInterface::class);
+
+        $requestProphecy->getMethod()
+            ->shouldBeCalledOnce()
+            ->willReturn($method);
+
+        $requestProphecy->getUri()
+            ->shouldBeCalledOnce()
+            ->willReturn($uri);
+
+        $requestProphecy->getHeaders()
+            ->shouldBeCalledOnce()
+            ->willReturn($headers);
+
+        /**
+         * @var \Psr\Http\Message\RequestInterface $requestMock
+         */
+        $requestMock = $requestProphecy->reveal();
+
+        $this->guzzleCollector->addRequest($abstract, $via, $requestMock, $options, [
+            'started_at'  => 123.45,
+            'finished_at' => 678.90,
+        ]);
+
+        self::assertEquals([
+            [
+                'headers' => [
+                    $header1Name => $header1Value,
+                    $header2Name => $header2Value,
+                    $header3Name => $header3Value,
+                ],
+
+                'times' => [
+                    'started_at'  => 123.45,
+                    'finished_at' => 678.90,
+                ],
+            ],
+        ], $this->guzzleCollector->collect());
+    }
+
+    /**
+     * @covers ::addRequest
+     * @covers ::collect
+     * @covers ::registerRequest
+     * @covers ::filterHeaders
+     */
+    public function testAddRequestHeadersAreExcluded(): void
+    {
+        $abstract = $this->getName();
+
+        $header1Name = 'Header1';
+        $header2Name = 'HEADER-2';
+        $header3Name = 'header-3';
+        $header4Name = 'Header4';
+
+        $header1Value = [
+            'value1',
+            'value2',
+        ];
+        $header2Value = [
+            'value3',
+            'value4',
+        ];
+        $header3Value = [
+            'value5',
+            'value6',
+        ];
+        $header4Value = [
+            'value7',
+            'value8',
+        ];
+
+        $this->guzzleCollector->setConfig([
+            'decorate' => [
+                'abstracts' => [
+                    $abstract => [
+                        'collect' => [
+                            GuzzleCollector::INFO_HEADERS => [
+                                'excludes' => [
+                                    $header4Name,
+                                    $header1Name,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $via = 'method_name';
+        $method = 'METHOD';
+        $uri = 'uri://example.com';
+        $headers = [
+            $header1Name => $header1Value,
+            $header2Name => $header2Value,
+            $header3Name => $header3Value,
+            $header4Name => $header4Value,
+        ];
+        $options = [];
+
+        /**
+         * @var \Prophecy\Prophecy\ObjectProphecy|\Psr\Http\Message\RequestInterface $requestProphecy
+         */
+        $requestProphecy = $this->prophesize(RequestInterface::class);
+
+        $requestProphecy->getMethod()
+            ->shouldBeCalledOnce()
+            ->willReturn($method);
+
+        $requestProphecy->getUri()
+            ->shouldBeCalledOnce()
+            ->willReturn($uri);
+
+        $requestProphecy->getHeaders()
+            ->shouldBeCalledOnce()
+            ->willReturn($headers);
+
+        /**
+         * @var \Psr\Http\Message\RequestInterface $requestMock
+         */
+        $requestMock = $requestProphecy->reveal();
+
+        $this->guzzleCollector->addRequest($abstract, $via, $requestMock, $options, [
+            'started_at'  => 123.45,
+            'finished_at' => 678.90,
+        ]);
+
+        self::assertEquals([
+            [
+                'headers' => [
+                    $header2Name => $header2Value,
+                    $header3Name => $header3Value,
+                ],
+
+                'times' => [
+                    'started_at'  => 123.45,
+                    'finished_at' => 678.90,
+                ],
+            ],
+        ], $this->guzzleCollector->collect());
+    }
+
+    /**
+     * @covers ::addRequest
+     * @covers ::collect
+     * @covers ::registerRequest
+     * @covers ::filterHeaders
+     */
+    public function testAddRequestHeadersAreMaintainedWhenEmptyConfigurationPassed(): void
+    {
+        $abstract = $this->getName();
+
+        $header1Name = 'Header1';
+        $header2Name = 'HEADER-2';
+        $header3Name = 'header-3';
+        $header4Name = 'Header4';
+
+        $header1Value = [
+            'value1',
+            'value2',
+        ];
+        $header2Value = [
+            'value3',
+            'value4',
+        ];
+        $header3Value = [
+            'value5',
+            'value6',
+        ];
+        $header4Value = [
+            'value7',
+            'value8',
+        ];
+
+        $this->guzzleCollector->setConfig([
+            'decorate' => [
+                'abstracts' => [
+                    $abstract => [
+                        'collect' => [
+                            GuzzleCollector::INFO_HEADERS => [],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $via = 'method_name';
+        $method = 'METHOD';
+        $uri = 'uri://example.com';
+        $headers = [
+            $header1Name => $header1Value,
+            $header2Name => $header2Value,
+            $header3Name => $header3Value,
+            $header4Name => $header4Value,
+        ];
+        $options = [];
+
+        /**
+         * @var \Prophecy\Prophecy\ObjectProphecy|\Psr\Http\Message\RequestInterface $requestProphecy
+         */
+        $requestProphecy = $this->prophesize(RequestInterface::class);
+
+        $requestProphecy->getMethod()
+            ->shouldBeCalledOnce()
+            ->willReturn($method);
+
+        $requestProphecy->getUri()
+            ->shouldBeCalledOnce()
+            ->willReturn($uri);
+
+        $requestProphecy->getHeaders()
+            ->shouldBeCalledOnce()
+            ->willReturn($headers);
+
+        /**
+         * @var \Psr\Http\Message\RequestInterface $requestMock
+         */
+        $requestMock = $requestProphecy->reveal();
+
+        $this->guzzleCollector->addRequest($abstract, $via, $requestMock, $options, [
+            'started_at'  => 123.45,
+            'finished_at' => 678.90,
+        ]);
+
+        self::assertEquals([
+            [
+                'headers' => $headers,
 
                 'times' => [
                     'started_at'  => 123.45,

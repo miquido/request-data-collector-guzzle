@@ -17,6 +17,8 @@ use Psr\Http\Message\RequestInterface;
  */
 class Guzzle6ClientDecoratorTest extends TestCase
 {
+    private const ABSTRACT_NAME = 'my-abstract-name';
+
     /**
      * @var \GuzzleHttp\ClientInterface|\Prophecy\Prophecy\ObjectProphecy
      */
@@ -47,7 +49,7 @@ class Guzzle6ClientDecoratorTest extends TestCase
          */
         $guzzleCollectorMock = $this->guzzleCollectorProphecy->reveal();
 
-        $this->guzzle6ClientDecorator = new Guzzle6ClientDecorator($clientMock, $guzzleCollectorMock);
+        $this->guzzle6ClientDecorator = new Guzzle6ClientDecorator($clientMock, $guzzleCollectorMock, self::ABSTRACT_NAME);
     }
 
     public function testSend(): void
@@ -55,7 +57,7 @@ class Guzzle6ClientDecoratorTest extends TestCase
         $requestDummy = $this->prepareRequestDummy();
         $options = [];
 
-        $this->guzzleCollectorProphecy->addRequest('send', $requestDummy, $options, $this->prepareTimesArgumentAssertion())
+        $this->guzzleCollectorProphecy->addRequest(self::ABSTRACT_NAME, 'send', $requestDummy, $options, $this->prepareTimesArgumentAssertion())
             ->shouldBeCalledOnce();
 
         $this->clientProphecy->send($requestDummy, $options)
@@ -69,7 +71,7 @@ class Guzzle6ClientDecoratorTest extends TestCase
         $requestDummy = $this->prepareRequestDummy();
         $options = [];
 
-        $this->guzzleCollectorProphecy->addRequest('sendAsync', $requestDummy, $options, $this->prepareTimesArgumentAssertion())
+        $this->guzzleCollectorProphecy->addRequest(self::ABSTRACT_NAME, 'sendAsync', $requestDummy, $options, $this->prepareTimesArgumentAssertion())
             ->shouldBeCalledOnce();
 
         $this->clientProphecy->sendAsync($requestDummy, $options)
@@ -84,7 +86,7 @@ class Guzzle6ClientDecoratorTest extends TestCase
         $uri = 'uri://example.com';
         $options = [];
 
-        $this->guzzleCollectorProphecy->addRawRequest('request', $method, $uri, $options, $this->prepareTimesArgumentAssertion())
+        $this->guzzleCollectorProphecy->addRawRequest(self::ABSTRACT_NAME, 'request', $method, $uri, $options, $this->prepareTimesArgumentAssertion())
             ->shouldBeCalledOnce();
 
         $this->clientProphecy->request($method, $uri, $options)
@@ -99,7 +101,7 @@ class Guzzle6ClientDecoratorTest extends TestCase
         $uri = 'uri://example.com';
         $options = [];
 
-        $this->guzzleCollectorProphecy->addRawRequest('requestAsync', $method, $uri, $options, $this->prepareTimesArgumentAssertion())
+        $this->guzzleCollectorProphecy->addRawRequest(self::ABSTRACT_NAME, 'requestAsync', $method, $uri, $options, $this->prepareTimesArgumentAssertion())
             ->shouldBeCalledOnce();
 
         $this->clientProphecy->requestAsync($method, $uri, $options)
