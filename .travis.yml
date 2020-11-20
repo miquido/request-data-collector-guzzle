@@ -1,5 +1,6 @@
 language: php
-sudo: false
+os: linux
+dist: xenial
 
 git:
   depth: 1
@@ -14,20 +15,19 @@ php:
   - '7.4'
   - master
 
-matrix:
+jobs:
   fast_finish: true
   allow_failures:
     - php: master
 
 env:
-  matrix:
+  jobs:
     - DEPENDENCIES="highest"
     - DEPENDENCIES="lowest"
   global:
     - DEFAULT_COMPOSER_FLAGS="--no-interaction --no-ansi --no-progress --no-suggest --no-scripts --optimize-autoloader --classmap-authoritative"
 
 install:
-  - composer global require "hirak/prestissimo:^0.3" --prefer-dist --no-progress --no-suggest --classmap-authoritative --ansi
   - if [[ "$DEPENDENCIES" = 'highest' ]]; then composer update $DEFAULT_COMPOSER_FLAGS; fi
   - if [[ "$DEPENDENCIES" = 'lowest' ]]; then composer update $DEFAULT_COMPOSER_FLAGS --prefer-lowest; fi
 
@@ -37,7 +37,7 @@ before_script:
 script:
   - composer cs-check
   - composer code-analyse
-  - phpunit --bootstrap vendor/autoload.php --configuration phpunit.xml
+  - phpunit --configuration phpunit.xml
 
 notifications:
   email: false
