@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         operating-system: [ ubuntu-latest, windows-latest, macos-latest ]
-        php-version: [ '7.2', '7.3', '7.4' ]
+        php-version: [ '7.3', '7.4' ]
         lowest-dependencies: [ false, true ]
 
     runs-on: ubuntu-latest
