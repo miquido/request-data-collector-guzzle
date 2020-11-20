@@ -30,7 +30,7 @@
     "homepage": "https://github.com/miquido/request-data-collector-guzzle",
     "license": "Apache-2.0",
     "require": {
-        "php": ">=7.2",
+        "php": ">=7.3",
         "guzzlehttp/guzzle": "^6.0",
         "miquido/request-data-collector": "^2.2"
     },
