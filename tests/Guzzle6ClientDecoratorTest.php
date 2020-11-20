@@ -9,6 +9,7 @@ use Miquido\RequestDataCollector\Collectors\GuzzleCollector\GuzzleCollector;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Argument\Token\CallbackToken;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Http\Message\RequestInterface;
 
 /**
@@ -17,6 +18,8 @@ use Psr\Http\Message\RequestInterface;
  */
 class Guzzle6ClientDecoratorTest extends TestCase
 {
+    use ProphecyTrait;
+
     private const ABSTRACT_NAME = 'my-abstract-name';
 
     /**

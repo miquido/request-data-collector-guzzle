@@ -7,6 +7,7 @@ use Illuminate\Contracts\Container\Container;
 use Miquido\RequestDataCollector\Collectors\GuzzleCollector\GuzzleCollector;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Http\Message\RequestInterface;
 use stdClass;
 
@@ -16,6 +17,8 @@ use stdClass;
  */
 class GuzzleCollectorTest extends TestCase
 {
+    use ProphecyTrait;
+
     /**
      * @var \Miquido\RequestDataCollector\Collectors\GuzzleCollector\GuzzleCollector
      */
