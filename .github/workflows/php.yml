@@ -1,0 +1,58 @@
+name: PHP
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    strategy:
+      matrix:
+        operating-system: [ ubuntu-latest, windows-latest, macos-latest ]
+        php-version: [ '7.2', '7.3', '7.4', '8.0-dev' ]
+        lowest-dependencies: [ false, true ]
+
+    runs-on: ubuntu-latest
+    name: PHP ${{ matrix.php-version }} Test on ${{ matrix.operating-system }} with ${{ matrix.lowest-dependencies && 'lowest' || 'highest' }} dependencies
+
+    steps:
+      - name: Checkout project files
+        uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: xdebug
+          tools: composer:v2
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v2
+        with:
+          path: vendor
+          key: ${{ matrix.operating-system }}-php-${{ matrix.php-version }}-${{ matrix.lowest-dependencies && 'lowest' || 'highest' }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ matrix.operating-system }}-php-${{ matrix.php-version }}-${{ matrix.lowest-dependencies && 'lowest' || 'highest' }}-
+
+      - name: Install lowest dependencies
+        if: steps.composer-cache.outputs.cache-hit != 'true' && matrix.lowest-dependencies
+        run: composer update --no-interaction --no-ansi --no-progress --no-scripts --optimize-autoloader --classmap-authoritative --prefer-lowest
+
+      - name: Install highest dependencies
+        if: steps.composer-cache.outputs.cache-hit != 'true' && !matrix.lowest-dependencies
+        run: composer update --no-interaction --no-ansi --no-progress --no-scripts --optimize-autoloader --classmap-authoritative
+
+      - name: Check Code Style
+        run: composer cs-check
+
+      - name: Run static analysis
+        run: composer code-analyse
+
+      - name: Run Unit tests
+        run: composer test-unit

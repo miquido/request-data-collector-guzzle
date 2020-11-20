@@ -38,7 +38,7 @@
         "miquido/request-data-collector-elasticsearch": "Allows collecting Elasticsearch requests"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^2.16.1",
+        "friendsofphp/php-cs-fixer": "^2.16.7",
         "jangregor/phpstan-prophecy": "^0.6",
         "phpstan/phpstan": "^0.12",
         "phpstan/phpstan-phpunit": "^0.12",
@@ -71,7 +71,7 @@
             "phpstan analyse -l 4 tests -c phpstan.tests.neon --memory-limit=512M --ansi"
         ],
         "test-unit": [
-            "phpunit --colors=always"
+            "phpunit --configuration phpunit.xml --colors=auto"
         ],
         "test": [
             "@cs-check",
