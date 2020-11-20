@@ -3,7 +3,7 @@
 This package is an extension to the Request Data Collector. Allows collecting Guzzle requests.
 
 [![GitHub license](https://img.shields.io/badge/license-Apache2.0-brightgreen.svg)](https://github.com/miquido/request-data-collector-guzzle/blob/master/LICENSE)
-[![Build](https://travis-ci.org/miquido/request-data-collector-guzzle.svg?branch=master)](https://travis-ci.org/miquido/request-data-collector-guzzle)
+[![Build](https://github.com/miquido/request-data-collector-guzzle/workflows/PHP/badge.svg?branch=master)](https://github.com/miquido/request-data-collector-guzzle/actions?query=branch%3Amaster)
 
 ## Set up
 
