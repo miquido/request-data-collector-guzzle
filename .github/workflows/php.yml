@@ -14,6 +14,10 @@ jobs:
         operating-system: [ ubuntu-latest, windows-latest, macos-latest ]
         php-version: [ '7.2', '7.3', '7.4', '8.0-dev' ]
         lowest-dependencies: [ false, true ]
+        experimental: [false]
+        include:
+          - php-version: '8.0-dev'
+            experimental: true
 
     runs-on: ubuntu-latest
     name: PHP ${{ matrix.php-version }} Test on ${{ matrix.operating-system }} with ${{ matrix.lowest-dependencies && 'lowest' || 'highest' }} dependencies
@@ -43,16 +47,21 @@ jobs:
       - name: Install lowest dependencies
         if: steps.composer-cache.outputs.cache-hit != 'true' && matrix.lowest-dependencies
         run: composer update --no-interaction --no-ansi --no-progress --no-scripts --optimize-autoloader --classmap-authoritative --prefer-lowest
+        continue-on-error: ${{ matrix.experimental }}
 
       - name: Install highest dependencies
         if: steps.composer-cache.outputs.cache-hit != 'true' && !matrix.lowest-dependencies
         run: composer update --no-interaction --no-ansi --no-progress --no-scripts --optimize-autoloader --classmap-authoritative
+        continue-on-error: ${{ matrix.experimental }}
 
       - name: Check Code Style
         run: composer cs-check
+        continue-on-error: ${{ matrix.experimental }}
 
       - name: Run static analysis
         run: composer code-analyse
+        continue-on-error: ${{ matrix.experimental }}
 
       - name: Run Unit tests
         run: composer test-unit
+        continue-on-error: ${{ matrix.experimental }}
