@@ -7,6 +7,9 @@
         <include>
             <directory suffix=".php">./src</directory>
         </include>
+        <exclude>
+            <file>./src/Guzzle7ClientDecorator.php</file>
+        </exclude>
     </coverage>
     <testsuites>
         <testsuite name="Unit">

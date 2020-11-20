@@ -1,0 +1,6 @@
+includes:
+    - %rootDir%/../../../phpstan.neon.dist
+
+parameters:
+    excludes_analyse:
+        - %rootDir%/../../../src/Guzzle6ClientDecorator.php
