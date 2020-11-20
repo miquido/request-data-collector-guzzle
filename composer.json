@@ -39,13 +39,13 @@
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.16.7",
-        "jangregor/phpstan-prophecy": "^0.6",
-        "phpspec/prophecy-phpunit": "^2.0",
-        "phpstan/phpstan": "^0.12",
-        "phpstan/phpstan-phpunit": "^0.12",
+        "jangregor/phpstan-prophecy": "^0.6.2",
+        "phpspec/prophecy-phpunit": "^2.0.1",
+        "phpstan/phpstan": "^0.12.56",
+        "phpstan/phpstan-phpunit": "^0.12.16",
         "phpunit/phpunit": "^9.4",
         "roave/security-advisories": "dev-master",
-        "symfony/var-dumper": "^5.0"
+        "symfony/var-dumper": "^5.1"
     },
     "autoload": {
         "psr-4": {
