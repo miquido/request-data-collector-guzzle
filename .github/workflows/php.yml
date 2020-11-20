@@ -1,19 +1,26 @@
 name: PHP
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  - pull_request
+  - push
 
 jobs:
   build:
 
     strategy:
       matrix:
-        operating-system: [ ubuntu-latest, windows-latest, macos-latest ]
-        php-version: [ '7.3', '7.4' ]
-        lowest-dependencies: [ false, true ]
+        operating-system:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+
+        php-version:
+          - '7.3'
+          - '7.4'
+
+        lowest-dependencies:
+          - false
+          - true
 
     runs-on: ubuntu-latest
     name: PHP ${{ matrix.php-version }} Test on ${{ matrix.operating-system }} with ${{ matrix.lowest-dependencies && 'lowest' || 'highest' }} dependencies
@@ -37,8 +44,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: vendor
-          key: ${{ matrix.operating-system }}-php-${{ matrix.php-version }}-${{ matrix.lowest-dependencies && 'lowest' || 'highest' }}-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ matrix.operating-system }}-php-${{ matrix.php-version }}-${{ matrix.lowest-dependencies && 'lowest' || 'highest' }}-
+          key: php-${{ matrix.php-version }}-${{ matrix.lowest-dependencies && 'lowest' || 'highest' }}-${{ hashFiles('**/composer.json') }}
+          restore-keys: php-${{ matrix.php-version }}-${{ matrix.lowest-dependencies && 'lowest' || 'highest' }}-
 
       - name: Install lowest dependencies
         if: steps.composer-cache.outputs.cache-hit != 'true' && matrix.lowest-dependencies
