@@ -53,8 +53,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: vendor
-          key: php-${{ matrix.php-version }}-dependencies-${{ matrix.dependencies }}-${{ hashFiles('**/composer.json') }}
-          restore-keys: php-${{ matrix.php-version }}-dependencies-${{ matrix.dependencies }}-
+          key: php-${{ matrix.php-version }}-guzzle-${{ matrix.guzzle-version }}-dependencies-${{ matrix.dependencies }}-${{ hashFiles('**/composer.json') }}
+          restore-keys: php-${{ matrix.php-version }}-guzzle-${{ matrix.guzzle-version }}-dependencies-${{ matrix.dependencies }}-
 
       - name: Install lowest dependencies
         if: steps.composer-cache.outputs.cache-hit != 'true' && matrix.dependencies == 'lowest'
