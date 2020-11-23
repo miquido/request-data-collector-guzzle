@@ -1,7 +1,8 @@
+# https://help.github.com/en/categories/automating-your-workflow-with-github-actions
+
 name: PHP
 
 on:
-  - pull_request
   - push
 
 jobs:
@@ -18,14 +19,18 @@ jobs:
           - '7.3'
           - '7.4'
 
-        lowest-dependencies:
-          - false
-          - true
+        dependencies:
+          - 'lowest'
+          - 'highest'
 
-    runs-on: ubuntu-latest
-    name: PHP ${{ matrix.php-version }} Test on ${{ matrix.operating-system }} with ${{ matrix.lowest-dependencies && 'lowest' || 'highest' }} dependencies
+    runs-on: ${{ matrix.operating-system }}
+    name: PHP ${{ matrix.php-version }} Test on ${{ matrix.operating-system }} with ${{ matrix.dependencies }} dependencies
 
     steps:
+      - name: Configure git to avoid issues with line endings
+        if: matrix.operating-system == 'windows-latest'
+        run: git config --global core.autocrlf false
+
       - name: Checkout project files
         uses: actions/checkout@v2
 
@@ -44,15 +49,15 @@ jobs:
         uses: actions/cache@v2
         with:
           path: vendor
-          key: php-${{ matrix.php-version }}-${{ matrix.lowest-dependencies && 'lowest' || 'highest' }}-${{ hashFiles('**/composer.json') }}
-          restore-keys: php-${{ matrix.php-version }}-${{ matrix.lowest-dependencies && 'lowest' || 'highest' }}-
+          key: php-${{ matrix.php-version }}-dependencies-${{ matrix.dependencies }}-${{ hashFiles('**/composer.json') }}
+          restore-keys: php-${{ matrix.php-version }}-dependencies-${{ matrix.dependencies }}-
 
       - name: Install lowest dependencies
-        if: steps.composer-cache.outputs.cache-hit != 'true' && matrix.lowest-dependencies
+        if: steps.composer-cache.outputs.cache-hit != 'true' && matrix.dependencies == 'lowest'
         run: composer update --no-interaction --no-ansi --no-progress --no-scripts --optimize-autoloader --classmap-authoritative --prefer-lowest
 
       - name: Install highest dependencies
-        if: steps.composer-cache.outputs.cache-hit != 'true' && !matrix.lowest-dependencies
+        if: steps.composer-cache.outputs.cache-hit != 'true' && matrix.dependencies == 'highest'
         run: composer update --no-interaction --no-ansi --no-progress --no-scripts --optimize-autoloader --classmap-authoritative
 
       - name: Check Code Style
