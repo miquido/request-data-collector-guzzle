@@ -66,6 +66,9 @@ class Guzzle6ClientDecorator extends Client
             'finished_at' => $TEnd,
         ]);
 
+        /**
+         * @var \GuzzleHttp\Promise\PromiseInterface $promise
+         */
         return $promise;
     }
 
@@ -108,6 +111,9 @@ class Guzzle6ClientDecorator extends Client
             'finished_at' => $TEnd,
         ]);
 
+        /**
+         * @var \GuzzleHttp\Promise\PromiseInterface $promise
+         */
         return $promise;
     }
 
