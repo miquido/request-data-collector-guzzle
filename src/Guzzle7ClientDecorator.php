@@ -5,9 +5,11 @@ namespace Miquido\RequestDataCollector\Collectors\GuzzleCollector;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Promise\PromiseInterface;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
-class Guzzle6ClientDecorator extends Client
+class Guzzle7ClientDecorator extends Client
 {
     /**
      * @var \GuzzleHttp\ClientInterface
@@ -35,10 +37,8 @@ class Guzzle6ClientDecorator extends Client
 
     /**
      * @throws \GuzzleHttp\Exception\GuzzleException
-     *
-     * @return \Psr\Http\Message\ResponseInterface
      */
-    public function send(RequestInterface $request, array $options = [])
+    public function send(RequestInterface $request, array $options = []): ResponseInterface
     {
         $TStart = \microtime(true);
         $response = $this->client->send($request, $options);
@@ -52,10 +52,7 @@ class Guzzle6ClientDecorator extends Client
         return $response;
     }
 
-    /**
-     * @return \GuzzleHttp\Promise\PromiseInterface
-     */
-    public function sendAsync(RequestInterface $request, array $options = [])
+    public function sendAsync(RequestInterface $request, array $options = []): PromiseInterface
     {
         $TStart = \microtime(true);
         $promise = $this->client->sendAsync($request, $options);
@@ -66,21 +63,33 @@ class Guzzle6ClientDecorator extends Client
             'finished_at' => $TEnd,
         ]);
 
-        /**
-         * @var \GuzzleHttp\Promise\PromiseInterface $promise
-         */
+        return $promise;
+    }
+
+    public function sendRequest(RequestInterface $request): ResponseInterface
+    {
+        if (!$this->client instanceof Client) {
+            throw new \BadMethodCallException(\sprintf('Method sendRequest() not found in %s', \get_class($this->client)));
+        }
+
+        $TStart = \microtime(true);
+        $promise = $this->client->sendRequest($request);
+        $TEnd = \microtime(true);
+
+        $this->guzzleCollector->addRequest($this->abstract, 'sendRequest', $request, [], [
+            'started_at'  => $TStart,
+            'finished_at' => $TEnd,
+        ]);
+
         return $promise;
     }
 
     /**
-     * @param string                                $method HTTP method.
-     * @param \Psr\Http\Message\UriInterface|string $uri    URI object or string.
+     * @param \Psr\Http\Message\UriInterface|string $uri URI object or string.
      *
      * @throws \GuzzleHttp\Exception\GuzzleException
-     *
-     * @return \Psr\Http\Message\ResponseInterface
      */
-    public function request($method, $uri = '', array $options = [])
+    public function request(string $method, $uri = '', array $options = []): ResponseInterface
     {
         $TStart = \microtime(true);
         $response = $this->client->request($method, $uri, $options);
@@ -95,12 +104,9 @@ class Guzzle6ClientDecorator extends Client
     }
 
     /**
-     * @param string                                $method HTTP method
-     * @param \Psr\Http\Message\UriInterface|string $uri    URI object or string.
-     *
-     * @return \GuzzleHttp\Promise\PromiseInterface
+     * @param \Psr\Http\Message\UriInterface|string $uri URI object or string.
      */
-    public function requestAsync($method, $uri = '', array $options = [])
+    public function requestAsync(string $method, $uri = '', array $options = []): PromiseInterface
     {
         $TStart = \microtime(true);
         $promise = $this->client->requestAsync($method, $uri, $options);
@@ -111,13 +117,10 @@ class Guzzle6ClientDecorator extends Client
             'finished_at' => $TEnd,
         ]);
 
-        /**
-         * @var \GuzzleHttp\Promise\PromiseInterface $promise
-         */
         return $promise;
     }
 
-    public function getConfig($option = null)
+    public function getConfig(?string $option = null)
     {
         return $this->client->getConfig($option);
     }

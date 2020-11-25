@@ -3,8 +3,9 @@ declare(strict_types=1);
 
 namespace Miquido\RequestDataCollector\Collectors\GuzzleCollector\Tests;
 
+use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
-use Miquido\RequestDataCollector\Collectors\GuzzleCollector\Guzzle6ClientDecorator;
+use Miquido\RequestDataCollector\Collectors\GuzzleCollector\Guzzle7ClientDecorator;
 use Miquido\RequestDataCollector\Collectors\GuzzleCollector\GuzzleCollector;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
@@ -13,17 +14,17 @@ use Prophecy\PhpUnit\ProphecyTrait;
 use Psr\Http\Message\RequestInterface;
 
 /**
- * @covers \Miquido\RequestDataCollector\Collectors\GuzzleCollector\Guzzle6ClientDecorator
- * @coversDefaultClass \Miquido\RequestDataCollector\Collectors\GuzzleCollector\Guzzle6ClientDecorator
+ * @covers \Miquido\RequestDataCollector\Collectors\GuzzleCollector\Guzzle7ClientDecorator
+ * @coversDefaultClass \Miquido\RequestDataCollector\Collectors\GuzzleCollector\Guzzle7ClientDecorator
  */
-class Guzzle6ClientDecoratorTest extends TestCase
+class Guzzle7ClientDecoratorTest extends TestCase
 {
     use ProphecyTrait;
 
     private const ABSTRACT_NAME = 'my-abstract-name';
 
     /**
-     * @var \GuzzleHttp\ClientInterface|\Prophecy\Prophecy\ObjectProphecy
+     * @var \GuzzleHttp\Client|\GuzzleHttp\ClientInterface|\Prophecy\Prophecy\ObjectProphecy
      */
     private $clientProphecy;
 
@@ -33,17 +34,17 @@ class Guzzle6ClientDecoratorTest extends TestCase
     private $guzzleCollectorProphecy;
 
     /**
-     * @var \Miquido\RequestDataCollector\Collectors\GuzzleCollector\Guzzle6ClientDecorator
+     * @var \Miquido\RequestDataCollector\Collectors\GuzzleCollector\Guzzle7ClientDecorator
      */
-    private $guzzle6ClientDecorator;
+    private $guzzle7ClientDecorator;
 
     protected function setUp(): void
     {
-        if (!\defined('\GuzzleHttp\ClientInterface::VERSION') || 0 !== \strpos(\constant('\GuzzleHttp\ClientInterface::VERSION'), '6.')) {
-            self::markTestSkipped('Guzzle6ClientDecorator should be used with Guzzle 6');
+        if (!\defined('\GuzzleHttp\ClientInterface::MAJOR_VERSION') || 7 !== \constant('\GuzzleHttp\ClientInterface::MAJOR_VERSION')) {
+            self::markTestSkipped('Guzzle7ClientDecorator should be used with Guzzle 7');
         }
 
-        $this->clientProphecy = $this->prophesize(ClientInterface::class);
+        $this->clientProphecy = $this->prophesize(Client::class);
         $this->guzzleCollectorProphecy = $this->prophesize(GuzzleCollector::class);
 
         /**
@@ -56,7 +57,7 @@ class Guzzle6ClientDecoratorTest extends TestCase
          */
         $guzzleCollectorMock = $this->guzzleCollectorProphecy->reveal();
 
-        $this->guzzle6ClientDecorator = new Guzzle6ClientDecorator($clientMock, $guzzleCollectorMock, self::ABSTRACT_NAME);
+        $this->guzzle7ClientDecorator = new Guzzle7ClientDecorator($clientMock, $guzzleCollectorMock, self::ABSTRACT_NAME);
     }
 
     public function testSend(): void
@@ -70,7 +71,7 @@ class Guzzle6ClientDecoratorTest extends TestCase
         $this->clientProphecy->send($requestDummy, $options)
             ->shouldBeCalledOnce();
 
-        $this->guzzle6ClientDecorator->send($requestDummy, $options);
+        $this->guzzle7ClientDecorator->send($requestDummy, $options);
     }
 
     public function testSendAsync(): void
@@ -84,7 +85,40 @@ class Guzzle6ClientDecoratorTest extends TestCase
         $this->clientProphecy->sendAsync($requestDummy, $options)
             ->shouldBeCalledOnce();
 
-        $this->guzzle6ClientDecorator->sendAsync($requestDummy, $options);
+        $this->guzzle7ClientDecorator->sendAsync($requestDummy, $options);
+    }
+
+    public function testSendRequest(): void
+    {
+        $requestDummy = $this->prepareRequestDummy();
+
+        $this->guzzleCollectorProphecy->addRequest(self::ABSTRACT_NAME, 'sendRequest', $requestDummy, [], $this->prepareTimesArgumentAssertion())
+            ->shouldBeCalledOnce();
+
+        $this->clientProphecy->sendRequest($requestDummy)
+            ->shouldBeCalledOnce();
+
+        $this->guzzle7ClientDecorator->sendRequest($requestDummy);
+    }
+
+    public function testSendRequestFailsWithUnsupportedClient(): void
+    {
+        /**
+         * @var \GuzzleHttp\ClientInterface $client
+         */
+        $client = $this->prophesize(ClientInterface::class)->reveal();
+
+        /**
+         * @var \Miquido\RequestDataCollector\Collectors\GuzzleCollector\GuzzleCollector $guzzleCollector
+         */
+        $guzzleCollector = $this->prophesize(GuzzleCollector::class)->reveal();
+
+        $guzzle7ClientDecorator = new Guzzle7ClientDecorator($client, $guzzleCollector, self::ABSTRACT_NAME);
+
+        $this->expectException(\BadMethodCallException::class);
+        $this->expectExceptionMessage(\sprintf('Method sendRequest() not found in %s', \get_class($client)));
+
+        $guzzle7ClientDecorator->sendRequest($this->prepareRequestDummy());
     }
 
     public function testRequest(): void
@@ -99,7 +133,7 @@ class Guzzle6ClientDecoratorTest extends TestCase
         $this->clientProphecy->request($method, $uri, $options)
             ->shouldBeCalledOnce();
 
-        $this->guzzle6ClientDecorator->request($method, $uri, $options);
+        $this->guzzle7ClientDecorator->request($method, $uri, $options);
     }
 
     public function testRequestAsync(): void
@@ -114,17 +148,17 @@ class Guzzle6ClientDecoratorTest extends TestCase
         $this->clientProphecy->requestAsync($method, $uri, $options)
             ->shouldBeCalledOnce();
 
-        $this->guzzle6ClientDecorator->requestAsync($method, $uri, $options);
+        $this->guzzle7ClientDecorator->requestAsync($method, $uri, $options);
     }
 
     public function testGetConfig(): void
     {
-        $option = [];
+        $option = 'some-config-key';
 
         $this->clientProphecy->getConfig($option)
             ->shouldBeCalledOnce();
 
-        $this->guzzle6ClientDecorator->getConfig($option);
+        $this->guzzle7ClientDecorator->getConfig($option);
     }
 
     private function prepareRequestDummy(): RequestInterface

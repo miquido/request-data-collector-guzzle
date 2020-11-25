@@ -31,7 +31,7 @@
     "license": "Apache-2.0",
     "require": {
         "php": ">=7.3",
-        "guzzlehttp/guzzle": "^6.0",
+        "guzzlehttp/guzzle": "^6.0|^7.0",
         "miquido/request-data-collector": "^2.2"
     },
     "suggest": {
@@ -44,7 +44,6 @@
         "phpstan/phpstan": "^0.12.56",
         "phpstan/phpstan-phpunit": "^0.12.16",
         "phpunit/phpunit": "^9.4",
-        "roave/security-advisories": "dev-master",
         "symfony/var-dumper": "^5.1"
     },
     "autoload": {
@@ -68,11 +67,32 @@
             "php-cs-fixer fix -v --ansi"
         ],
         "code-analyse": [
-            "phpstan analyse -l 4 src --memory-limit=512M --ansi",
-            "phpstan analyse -l 4 tests -c phpstan.tests.neon --memory-limit=512M --ansi"
+            "@code-analyse:guzzle6",
+            "@code-analyse:guzzle7"
+        ],
+        "code-analyse:guzzle6": [
+            "phpstan analyse -l 4 src -c phpstan.guzzle6.neon --memory-limit=512M --ansi",
+            "phpstan analyse -l 4 tests -c phpstan.tests.guzzle6.neon --memory-limit=512M --ansi"
+        ],
+        "code-analyse:guzzle7": [
+            "phpstan analyse -l 4 src -c phpstan.guzzle7.neon --memory-limit=512M --ansi",
+            "phpstan analyse -l 4 tests -c phpstan.tests.guzzle7.neon --memory-limit=512M --ansi -vvv"
+        ],
+        "code-analyse:clear-cache": [
+            "phpstan clear-result-cache -c phpstan.guzzle6.neon",
+            "phpstan clear-result-cache -c phpstan.tests.guzzle6.neon",
+            "phpstan clear-result-cache -c phpstan.guzzle7.neon",
+            "phpstan clear-result-cache -c phpstan.tests.guzzle7.neon"
         ],
         "test-unit": [
-            "phpunit --configuration phpunit.xml --colors=auto"
+            "@test-unit:guzzle6",
+            "@test-unit:guzzle7"
+        ],
+        "test-unit:guzzle6": [
+            "phpunit --configuration phpunit.guzzle6.xml --colors=auto"
+        ],
+        "test-unit:guzzle7": [
+            "phpunit --configuration phpunit.guzzle7.xml --colors=auto"
         ],
         "test": [
             "@cs-check",

@@ -23,8 +23,12 @@ jobs:
           - 'lowest'
           - 'highest'
 
+        guzzle-version:
+          - 6
+          - 7
+
     runs-on: ${{ matrix.operating-system }}
-    name: PHP ${{ matrix.php-version }} Test on ${{ matrix.operating-system }} with ${{ matrix.dependencies }} dependencies
+    name: PHP ${{ matrix.php-version }} Test on ${{ matrix.operating-system }} with Guzzle v${{ matrix.guzzle-version }} and ${{ matrix.dependencies }} dependencies
 
     steps:
       - name: Configure git to avoid issues with line endings
@@ -49,22 +53,25 @@ jobs:
         uses: actions/cache@v2
         with:
           path: vendor
-          key: php-${{ matrix.php-version }}-dependencies-${{ matrix.dependencies }}-${{ hashFiles('**/composer.json') }}
-          restore-keys: php-${{ matrix.php-version }}-dependencies-${{ matrix.dependencies }}-
+          key: php-${{ matrix.php-version }}-guzzle-${{ matrix.guzzle-version }}-dependencies-${{ matrix.dependencies }}-${{ hashFiles('**/composer.json') }}
+          restore-keys: php-${{ matrix.php-version }}-guzzle-${{ matrix.guzzle-version }}-dependencies-${{ matrix.dependencies }}-
 
       - name: Install lowest dependencies
         if: steps.composer-cache.outputs.cache-hit != 'true' && matrix.dependencies == 'lowest'
-        run: composer update --no-interaction --no-ansi --no-progress --no-scripts --optimize-autoloader --classmap-authoritative --prefer-lowest
+        run: composer require "guzzlehttp/guzzle:^${{ matrix.guzzle-version }}.0" --no-interaction --no-ansi --no-progress --no-scripts --optimize-autoloader --classmap-authoritative --prefer-lowest
 
       - name: Install highest dependencies
         if: steps.composer-cache.outputs.cache-hit != 'true' && matrix.dependencies == 'highest'
-        run: composer update --no-interaction --no-ansi --no-progress --no-scripts --optimize-autoloader --classmap-authoritative
+        run: composer require "guzzlehttp/guzzle:^${{ matrix.guzzle-version }}.0" --no-interaction --no-ansi --no-progress --no-scripts --optimize-autoloader --classmap-authoritative
 
       - name: Check Code Style
         run: composer cs-check
 
+      - name: Clear static analysis cache
+        run: composer code-analyse:clear-cache
+
       - name: Run static analysis
-        run: composer code-analyse
+        run: composer code-analyse:guzzle${{ matrix.guzzle-version }}
 
       - name: Run Unit tests
-        run: composer test-unit
+        run: composer test-unit:guzzle${{ matrix.guzzle-version }}

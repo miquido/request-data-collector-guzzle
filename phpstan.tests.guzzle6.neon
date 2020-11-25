@@ -1,0 +1,6 @@
+includes:
+	- %rootDir%/../../../phpstan.tests.neon
+
+parameters:
+    excludes_analyse:
+        - %rootDir%/../../../tests/Guzzle7ClientDecoratorTest.php
