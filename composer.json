@@ -30,7 +30,7 @@
     "homepage": "https://github.com/miquido/request-data-collector-guzzle",
     "license": "Apache-2.0",
     "require": {
-        "php": ">=7.3",
+        "php": "^7.3|^8.0",
         "guzzlehttp/guzzle": "^6.0|^7.0",
         "miquido/request-data-collector": "^2.2"
     },
@@ -38,13 +38,13 @@
         "miquido/request-data-collector-elasticsearch": "Allows collecting Elasticsearch requests"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^2.16.7",
-        "jangregor/phpstan-prophecy": "^0.6.2",
+        "friendsofphp/php-cs-fixer": "^2.18.5",
+        "jangregor/phpstan-prophecy": "^0.8.1",
         "phpspec/prophecy-phpunit": "^2.0.1",
-        "phpstan/phpstan": "^0.12.56",
-        "phpstan/phpstan-phpunit": "^0.12.16",
-        "phpunit/phpunit": "^9.4",
-        "symfony/var-dumper": "^5.1"
+        "phpstan/phpstan": "^0.12.83",
+        "phpstan/phpstan-phpunit": "^0.12.18",
+        "phpunit/phpunit": "^9.5",
+        "symfony/var-dumper": "^5.2"
     },
     "autoload": {
         "psr-4": {
@@ -58,7 +58,7 @@
     },
     "scripts": {
         "cs-check": [
-            "php-cs-fixer fix -v --diff --dry-run --stop-on-violation --ansi"
+            "php-cs-fixer fix -v --diff --dry-run --stop-on-violation --ansi --verbose"
         ],
         "lint": [
             "php-cs-fixer fix -v --dry-run --diff --ansi"
@@ -71,12 +71,12 @@
             "@code-analyse:guzzle7"
         ],
         "code-analyse:guzzle6": [
-            "phpstan analyse -l 4 src -c phpstan.guzzle6.neon --memory-limit=512M --ansi",
-            "phpstan analyse -l 4 tests -c phpstan.tests.guzzle6.neon --memory-limit=512M --ansi"
+            "phpstan analyse -l 4 src -c phpstan.guzzle6.neon --memory-limit=512M --ansi --verbose",
+            "phpstan analyse -l 4 tests -c phpstan.tests.guzzle6.neon --memory-limit=512M --ansi --verbose"
         ],
         "code-analyse:guzzle7": [
-            "phpstan analyse -l 4 src -c phpstan.guzzle7.neon --memory-limit=512M --ansi",
-            "phpstan analyse -l 4 tests -c phpstan.tests.guzzle7.neon --memory-limit=512M --ansi -vvv"
+            "phpstan analyse -l 4 src -c phpstan.guzzle7.neon --memory-limit=512M --ansi --verbose",
+            "phpstan analyse -l 4 tests -c phpstan.tests.guzzle7.neon --memory-limit=512M --ansi --verbose"
         ],
         "code-analyse:clear-cache": [
             "phpstan clear-result-cache -c phpstan.guzzle6.neon",

@@ -11,21 +11,22 @@ jobs:
     strategy:
       matrix:
         operating-system:
-          - ubuntu-latest
-          - windows-latest
-          - macos-latest
+          - 'ubuntu-latest'
+          - 'windows-latest'
+          - 'macos-latest'
 
         php-version:
           - '7.3'
           - '7.4'
+          - '8.0'
 
         dependencies:
           - 'lowest'
           - 'highest'
 
         guzzle-version:
-          - 6
-          - 7
+          - '6.*'
+          - '7.*'
 
     runs-on: ${{ matrix.operating-system }}
     name: PHP ${{ matrix.php-version }} Test on ${{ matrix.operating-system }} with Guzzle v${{ matrix.guzzle-version }} and ${{ matrix.dependencies }} dependencies
@@ -50,19 +51,18 @@ jobs:
 
       - name: Cache Composer packages
         id: composer-cache
-        uses: actions/cache@v2
+        uses: actions/cache@v2.1.5
         with:
           path: vendor
           key: php-${{ matrix.php-version }}-guzzle-${{ matrix.guzzle-version }}-dependencies-${{ matrix.dependencies }}-${{ hashFiles('**/composer.json') }}
-          restore-keys: php-${{ matrix.php-version }}-guzzle-${{ matrix.guzzle-version }}-dependencies-${{ matrix.dependencies }}-
 
       - name: Install lowest dependencies
         if: steps.composer-cache.outputs.cache-hit != 'true' && matrix.dependencies == 'lowest'
-        run: composer require "guzzlehttp/guzzle:^${{ matrix.guzzle-version }}.0" --no-interaction --no-ansi --no-progress --no-scripts --optimize-autoloader --classmap-authoritative --prefer-lowest
+        run: composer require "guzzlehttp/guzzle:${{ matrix.guzzle-version }}" --no-interaction --no-ansi --no-progress --no-scripts --optimize-autoloader --classmap-authoritative --update-with-all-dependencies --prefer-lowest
 
       - name: Install highest dependencies
         if: steps.composer-cache.outputs.cache-hit != 'true' && matrix.dependencies == 'highest'
-        run: composer require "guzzlehttp/guzzle:^${{ matrix.guzzle-version }}.0" --no-interaction --no-ansi --no-progress --no-scripts --optimize-autoloader --classmap-authoritative
+        run: composer require "guzzlehttp/guzzle:${{ matrix.guzzle-version }}" --no-interaction --no-ansi --no-progress --no-scripts --optimize-autoloader --classmap-authoritative --update-with-all-dependencies
 
       - name: Check Code Style
         run: composer cs-check
@@ -70,8 +70,16 @@ jobs:
       - name: Clear static analysis cache
         run: composer code-analyse:clear-cache
 
+      - name: Extract major version of Guzzle
+        id: get-major-version
+        uses: actions/github-script@v3
+        env:
+          VERSION: ${{ matrix.guzzle-version }}
+        with:
+          script: core.setOutput('version', process.env.VERSION.split('.')[0])
+
       - name: Run static analysis
-        run: composer code-analyse:guzzle${{ matrix.guzzle-version }}
+        run: composer code-analyse:guzzle${{ steps.get-major-version.outputs.version }}
 
       - name: Run Unit tests
-        run: composer test-unit:guzzle${{ matrix.guzzle-version }}
+        run: composer test-unit:guzzle${{ steps.get-major-version.outputs.version }}
