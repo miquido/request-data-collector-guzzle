@@ -71,18 +71,18 @@
             "@code-analyse:guzzle7"
         ],
         "code-analyse:guzzle6": [
-            "phpstan analyse -l 4 src -c phpstan.guzzle6.neon --memory-limit=512M --ansi --verbose",
-            "phpstan analyse -l 4 tests -c phpstan.tests.guzzle6.neon --memory-limit=512M --ansi --verbose"
+            "phpstan analyse --configuration=phpstan.guzzle6.neon --memory-limit=512M --ansi --verbose",
+            "phpstan analyse --configuration=phpstan.tests.guzzle6.neon --memory-limit=512M --ansi --verbose"
         ],
         "code-analyse:guzzle7": [
-            "phpstan analyse -l 4 src -c phpstan.guzzle7.neon --memory-limit=512M --ansi --verbose",
-            "phpstan analyse -l 4 tests -c phpstan.tests.guzzle7.neon --memory-limit=512M --ansi --verbose"
+            "phpstan analyse --configuration=phpstan.guzzle7.neon --memory-limit=512M --ansi --verbose",
+            "phpstan analyse --configuration=phpstan.tests.guzzle7.neon --memory-limit=512M --ansi --verbose"
         ],
         "code-analyse:clear-cache": [
-            "phpstan clear-result-cache -c phpstan.guzzle6.neon",
-            "phpstan clear-result-cache -c phpstan.tests.guzzle6.neon",
-            "phpstan clear-result-cache -c phpstan.guzzle7.neon",
-            "phpstan clear-result-cache -c phpstan.tests.guzzle7.neon"
+            "phpstan clear-result-cache --configuration=phpstan.guzzle6.neon",
+            "phpstan clear-result-cache --configuration=phpstan.tests.guzzle6.neon",
+            "phpstan clear-result-cache --configuration=phpstan.guzzle7.neon",
+            "phpstan clear-result-cache --configuration=phpstan.tests.guzzle7.neon"
         ],
         "test-unit": [
             "@test-unit:guzzle6",
