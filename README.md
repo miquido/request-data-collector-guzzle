@@ -88,3 +88,7 @@ abstract => [
 ```
 
 When **create** equals `true`, defines to add an instance to the container even if it does not exist.
+
+## About
+
+The project was made by Miquido: https://www.miquido.com
